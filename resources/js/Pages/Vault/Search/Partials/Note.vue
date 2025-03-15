@@ -122,7 +122,7 @@ export default {
 
   methods: {
     showFull(note) {
-      this.localNotes[this.data.localNotes((x) => x.id === note.id)].show_full_content = true;
+      this.localNotes[this.localNotes.findIndex((x) => x.id === note.id)].show_full_content = true;
     },
   },
 };

@@ -9,17 +9,18 @@
           {{ $t('Photos') }}
         </span>
       </div>
-      <uploadcare
-        v-if="data.uploadcare.publicKey && data.canUploadFile"
-        :public-key="data.uploadcare.publicKey"
-        :secure-signature="data.uploadcare.signature"
-        :secure-expire="data.uploadcare.expire"
-        :tabs="'file'"
-        :preview-step="false"
-        @success="onSuccess"
-        @error="onError">
-        <pretty-button :text="$t('Add a photo')" :icon="'plus'" :class="'w-full sm:w-fit'" />
-      </uploadcare>
+      <!--      <uploadcare-->
+      <!--        v-if="data.uploadcare.publicKey && data.canUploadFile"-->
+      <!--        :public-key="data.uploadcare.publicKey"-->
+      <!--        :secure-signature="data.uploadcare.signature"-->
+      <!--        :secure-expire="data.uploadcare.expire"-->
+      <!--        :tabs="'file'"-->
+      <!--        :preview-step="false"-->
+      <!--        @success="onSuccess"-->
+      <!--        @error="onError">-->
+      <input type="file" ref="fileInput" class="hidden" @change="onFileChange" accept="image/*" />
+      <pretty-button :text="$t('Add a photo')" :icon="'plus'" :class="'w-full sm:w-fit'" @click="triggerFileInput" />
+      <!--      </uploadcare>-->
     </div>
 
     <!-- not enough space in storage -->
@@ -76,14 +77,14 @@
 <script>
 import { Link } from '@inertiajs/vue3';
 import PrettyButton from '@/Shared/Form/PrettyButton.vue';
-import Uploadcare from '@/Components/Uploadcare.vue';
+// import Uploadcare from '@/Components/Uploadcare.vue';
 import { FileImage } from 'lucide-vue-next';
 
 export default {
   components: {
     InertiaLink: Link,
     PrettyButton,
-    Uploadcare,
+    // Uploadcare,
     FileImage,
   },
 
@@ -106,6 +107,7 @@ export default {
         mime_type: null,
         size: null,
         errors: [],
+        file: null,
       },
     };
   },
@@ -115,20 +117,53 @@ export default {
   },
 
   methods: {
-    onSuccess(file) {
-      this.form.uuid = file.uuid;
-      this.form.name = file.name;
-      this.form.original_url = file.originalUrl;
-      this.form.cdn_url = file.cdnUrl;
-      this.form.mime_type = file.mimeType;
-      this.form.size = file.size;
+    /**
+     * 触发隐藏的文件输入框
+     */
+    triggerFileInput() {
+      this.$refs.fileInput.click(); // 手动触发文件选择弹窗
+    },
 
+    onFileChange(e) {
+      const file = e.target.files[0];
+      if (file) {
+        this.form.file = file;
+        this.form.name = file.name;
+        this.form.size = file.size;
+      }
+
+      // 自动触发文件上传
       this.upload();
     },
 
+    // onSuccess(file) {
+    //   this.form.uuid = file.uuid;
+    //   this.form.name = file.name;
+    //   this.form.original_url = file.originalUrl;
+    //   this.form.cdn_url = file.cdnUrl;
+    //   this.form.mime_type = file.mimeType;
+    //   this.form.size = file.size;
+    //
+    //   this.upload();
+    // },
+
     upload() {
+      if (!this.form.file) {
+        alert('Please select a file first.');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('file', this.form.file);
+      formData.append('name', this.form.name);
+      formData.append('size', this.form.size);
+
       axios
-        .post(this.data.url.store, this.form)
+        .post(this.data.url.store, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
         .then((response) => {
           this.localPhotos.unshift(response.data.data);
           this.flash(this.$t('The photo has been added'), 'success');

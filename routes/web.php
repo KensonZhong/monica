@@ -358,6 +358,7 @@ Route::middleware([
                     Route::get('photos', [ContactPhotoController::class, 'index'])->name('contact.photo.index');
                     Route::get('photos/{photo}', [ContactPhotoController::class, 'show'])->name('contact.photo.show');
                     Route::post('photos', [ContactModulePhotoController::class, 'store'])->name('contact.photo.store');
+                    Route::post('photos/upload', [ContactModulePhotoController::class, 'upload'])->name('contact.photo.upload');
                     Route::delete('photos/{photo}', [ContactModulePhotoController::class, 'destroy'])->name('contact.photo.destroy');
 
                     // tasks
@@ -447,7 +448,7 @@ Route::middleware([
                     Route::get('slices', [SliceOfLifeController::class, 'index'])->name('slices.index');
                     Route::post('slices', [SliceOfLifeController::class, 'store'])->name('slices.store');
 
-                    Route::middleware('can:slice-owner,journal,slice')->prefix('slices/{slice}')->group(function () {
+                    Route::middleware('can:sliceOfLife-owner,journal,slice')->prefix('slices/{slice}')->group(function () {
                         Route::get('', [SliceOfLifeController::class, 'show'])->name('slices.show');
                         Route::get('edit', [SliceOfLifeController::class, 'edit'])->name('slices.edit');
                         Route::put('', [SliceOfLifeController::class, 'update'])->name('slices.update');

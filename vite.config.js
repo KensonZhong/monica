@@ -28,8 +28,9 @@ export default defineConfig(({ mode }) => {
       basicSsl(),
     ],
     server: {
-      https: true,
-      host: 'localhost',
+      https: false,
+      host: '0.0.0.0',
+      cors: true,
     },
     build: {
       sourcemap: env.VITE_PROD_SOURCE_MAPS,

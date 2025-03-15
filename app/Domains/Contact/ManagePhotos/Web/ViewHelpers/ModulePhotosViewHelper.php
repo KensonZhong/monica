@@ -26,7 +26,7 @@ class ModulePhotosViewHelper
                     'vault' => $contact->vault_id,
                     'contact' => $contact->id,
                 ]),
-                'store' => route('contact.photo.store', [
+                'store' => route('contact.photo.upload', [
                     'vault' => $contact->vault_id,
                     'contact' => $contact->id,
                 ]),
@@ -42,7 +42,8 @@ class ModulePhotosViewHelper
             'mime_type' => $file->mime_type,
             'size' => FileHelper::formatFileSize($file->size),
             'url' => [
-                'display' => 'https://ucarecdn.com/'.$file->uuid.'/-/scale_crop/300x300/smart/-/format/auto/-/quality/smart_retina/',
+//                'display' => 'https://ucarecdn.com/'.$file->uuid.'/-/scale_crop/300x300/smart/-/format/auto/-/quality/smart_retina/',
+                'display' => $file->cdn_url,
                 'download' => $file->cdn_url,
                 'show' => route('contact.photo.show', [
                     'vault' => $contact->vault_id,

@@ -184,7 +184,8 @@ class PostEditViewHelper
             'size' => FileHelper::formatFileSize($file->size),
             'mime_type' => $file->mime_type,
             'url' => [
-                'show' => 'https://ucarecdn.com/'.$file->uuid.'/-/scale_crop/75x75/smart/-/format/auto/-/quality/smart_retina/',
+//                'show' => 'https://ucarecdn.com/'.$file->uuid.'/-/scale_crop/75x75/smart/-/format/auto/-/quality/smart_retina/',
+                'show' => $file->cdn_url,
                 'destroy' => route('post.photos.destroy', [
                     'vault' => $journal->vault_id,
                     'journal' => $journal->id,

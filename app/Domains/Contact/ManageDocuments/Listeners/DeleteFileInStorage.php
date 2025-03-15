@@ -5,6 +5,7 @@ namespace App\Domains\Contact\ManageDocuments\Listeners;
 use App\Domains\Contact\ManageDocuments\Events\FileDeleted;
 use App\Exceptions\EnvVariablesNotSetException;
 use App\Models\File;
+use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Uploadcare\Api;
@@ -31,7 +32,9 @@ class DeleteFileInStorage
     /**
      * Create the event listener.
      */
-    public function __construct() {}
+    public function __construct()
+    {
+    }
 
     /**
      * Handle the event.
@@ -39,9 +42,10 @@ class DeleteFileInStorage
     public function handle(FileDeleted $event)
     {
         $this->file = $event->file;
-        $this->checkAPIKeyPresence();
-        $this->getFileFromUploadcare();
-        $this->deleteFile();
+//        $this->checkAPIKeyPresence();
+//        $this->getFileFromUploadcare();
+//        $this->deleteFile();
+        $this->deleteLocalFile();
     }
 
     private function checkAPIKeyPresence(): void
@@ -70,5 +74,10 @@ class DeleteFileInStorage
     private function deleteFile(): void
     {
         $this->api->file()->deleteFile($this->fileInUploadcare);
+    }
+
+    private function deleteLocalFile()
+    {
+        Storage::disk('public')->delete($this->file->original_url);
     }
 }

@@ -27,7 +27,7 @@ class ContactPhotosIndexViewHelper
                     'vault' => $contact->vault_id,
                     'contact' => $contact->id,
                 ]),
-                'store' => route('contact.photo.store', [
+                'store' => route('contact.photo.upload', [
                     'vault' => $contact->vault_id,
                     'contact' => $contact->id,
                 ]),
@@ -43,7 +43,8 @@ class ContactPhotosIndexViewHelper
             'mime_type' => $file->mime_type,
             'size' => FileHelper::formatFileSize($file->size),
             'url' => [
-                'display' => 'https://ucarecdn.com/'.$file->uuid.'/-/scale_crop/400x400/smart/-/format/auto/-/quality/smart_retina/',
+//                'display' => 'https://ucarecdn.com/'.$file->uuid.'/-/scale_crop/400x400/smart/-/format/auto/-/quality/smart_retina/',
+                'display' => $file->cdn_url,
                 'download' => $file->cdn_url,
                 'show' => route('contact.photo.show', [
                     'vault' => $contact->vault_id,
