@@ -49,6 +49,20 @@ const masks = ref({
   modelValue: 'YYYY-MM-DD',
 });
 const isUploading = ref(false);
+// 添加图片预览相关状态
+const showImagePreview = ref(false);
+const previewImageUrl = ref('');
+
+// 图片预览函数
+const openImagePreview = (imageUrl) => {
+  previewImageUrl.value = imageUrl;
+  showImagePreview.value = true;
+};
+
+const closeImagePreview = () => {
+  previewImageUrl.value = '';
+  showImagePreview.value = false;
+};
 
 watch(
   () => _.cloneDeep(form.sections),
@@ -253,7 +267,12 @@ const destroy = () => {
                   :key="photo.id"
                   class="item-list flex items-center justify-between border-b border-gray-200 p-3 hover:bg-slate-50 dark:border-gray-700 dark:bg-slate-900 dark:hover:bg-slate-800">
                   <div class="flex">
-                    <img :src="photo.url.show" class="me-4" width="75" height="75" />
+                    <img
+                      :src="photo.url.show"
+                      class="me-4 cursor-pointer"
+                      width="75"
+                      height="75"
+                      @click="openImagePreview(photo.url.show)" />
 
                     <ul>
                       <li class="mb-2 text-sm">{{ photo.name }}</li>
@@ -330,6 +349,19 @@ const destroy = () => {
                   <span class="me-1">⚠️</span>
                   {{ $t('You don’t have enough space left in your account.') }}
                 </p>
+              </div>
+
+              <!-- 图片预览模态框 -->
+              <div
+                v-if="showImagePreview"
+                class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75"
+                @click="closeImagePreview">
+                <div class="relative max-h-[90vh] max-w-[90vw]">
+                  <img :src="previewImageUrl" class="max-h-[90vh] max-w-[90vw] object-contain" @click.stop />
+                  <button class="absolute -top-10 right-0 text-white text-2xl" @click="closeImagePreview">
+                    &times;
+                  </button>
+                </div>
               </div>
             </div>
 
