@@ -105,7 +105,7 @@ class PostEditViewHelper
                     'journal' => $journal->id,
                     'post' => $post->id,
                 ]),
-                'upload_photo' => route('post.photos.store', [
+                'upload_photo' => route('post.photos.upload', [
                     'vault' => $journal->vault_id,
                     'journal' => $journal->id,
                     'post' => $post->id,

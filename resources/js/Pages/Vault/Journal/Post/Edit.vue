@@ -12,7 +12,6 @@ import TextArea from '@/Shared/Form/TextArea.vue';
 import Tags from '@/Pages/Vault/Journal/Post/Partials/Tags.vue';
 import SlicesOfLife from '@/Pages/Vault/Journal/Post/Partials/SlicesOfLife.vue';
 import PostMetrics from '@/Pages/Vault/Journal/Post/Partials/PostMetrics.vue';
-import Uploadcare from '@/Components/Uploadcare.vue';
 import ContactSelector from '@/Shared/Form/ContactSelector.vue';
 import JetConfirmationModal from '@/Components/Jetstream/ConfirmationModal.vue';
 import JetDangerButton from '@/Components/Jetstream/DangerButton.vue';
@@ -49,6 +48,7 @@ const localPhotos = ref(props.data.photos);
 const masks = ref({
   modelValue: 'YYYY-MM-DD',
 });
+const isUploading = ref(false);
 
 watch(
   () => _.cloneDeep(form.sections),
@@ -82,17 +82,6 @@ const debouncedWatch = debounce(() => {
   update();
 }, 500);
 
-const onSuccess = (file) => {
-  form.uuid = file.uuid;
-  form.name = file.name;
-  form.original_url = file.originalUrl;
-  form.cdn_url = file.cdnUrl;
-  form.mime_type = file.mimeType;
-  form.size = file.size;
-
-  upload();
-};
-
 const showDeletePhotoModal = (file) => {
   photoToDelete.value = file;
   deletePhotoModalShown.value = true;
@@ -109,6 +98,42 @@ const upload = () => {
     })
     .catch((error) => {
       form.errors = error.response.data;
+    });
+};
+
+const handleFileUpload = (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  // 创建表单数据
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('name', file.name);
+  formData.append('size', file.size);
+
+  // 显示上传中状态
+  isUploading.value = true;
+
+  // 调用本地服务器上传接口
+  axios
+    .post(props.data.url.upload_photo, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+    .then((response) => {
+      isUploading.value = false;
+      const fileData = response.data.data;
+      localPhotos.value.push(fileData);
+    })
+    .catch((error) => {
+      console.error('上传失败:', error);
+      form.errors = error.response.data;
+    })
+    .finally(() => {
+      isUploading.value = false;
+      // 重置文件输入，允许重新选择同一文件
+      event.target.value = '';
     });
 };
 
@@ -244,27 +269,18 @@ const destroy = () => {
                 </li>
               </ul>
 
-              <!-- upload component -->
-              <uploadcare
-                v-if="data.uploadcare.publicKey && data.canUploadFile"
-                :public-key="data.uploadcare.publicKey"
-                :secure-signature="data.uploadcare.signature"
-                :secure-expire="data.uploadcare.expire"
-                :tabs="'file'"
-                :preview-step="false"
-                @success="onSuccess"
-                @error="onError">
-                <!-- case when there are no photos yet -->
-                <div
-                  v-if="localPhotos.length === 0"
-                  class="mb-6 flex cursor-pointer flex-col items-center rounded-lg border border-gray-200 bg-white p-3 hover:bg-slate-50 dark:border-gray-700 dark:bg-gray-900 dark:hover:bg-slate-800">
+              <!-- case when there are no photos yet -->
+              <div
+                v-if="localPhotos.length === 0"
+                class="mb-6 flex cursor-pointer flex-col items-center rounded-lg border border-gray-200 bg-white p-3 hover:bg-slate-50 dark:border-gray-700 dark:bg-gray-900 dark:hover:bg-slate-800">
+                <label for="photo-upload" class="cursor-pointer w-full text-center">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke-width="1.5"
                     stroke="currentColor"
-                    class="mb-2 h-8 w-8 text-gray-500">
+                    class="mb-2 h-8 w-8 text-gray-500 mx-auto">
                     <path
                       stroke-linecap="round"
                       stroke-linejoin="round"
@@ -272,16 +288,30 @@ const destroy = () => {
                   </svg>
 
                   <p class="text-sm text-gray-500">{{ $t('Add photos') }}</p>
-                </div>
+                </label>
+                <input id="photo-upload" type="file" accept="image/*" class="hidden" @change="handleFileUpload" />
+              </div>
 
-                <!-- case when there are photos -->
-                <div v-else class="mb-6 flex items-center">
+              <!-- case when there are photos -->
+              <div v-else class="mb-6 flex items-center">
+                <label for="photo-upload" class="cursor-pointer">
                   <p
                     class="inline-block cursor-pointer rounded-lg border bg-slate-200 dark:bg-slate-700 px-1 py-1 text-xs hover:bg-slate-300 dark:hover:bg-slate-800">
                     {{ $t('+ add another photo') }}
                   </p>
+                </label>
+                <input id="photo-upload" type="file" accept="image/*" class="hidden" @change="handleFileUpload" />
+              </div>
+
+              <!-- 上传中状态显示 -->
+              <div v-if="isUploading" class="mb-6 flex items-center justify-center">
+                <div class="saving-spinner me-3">
+                  <div class="dot"></div>
+                  <div class="dot"></div>
+                  <div class="dot"></div>
                 </div>
-              </uploadcare>
+                <span>{{ $t('Uploading...') }}</span>
+              </div>
 
               <!-- uploadcare api key not set -->
               <div

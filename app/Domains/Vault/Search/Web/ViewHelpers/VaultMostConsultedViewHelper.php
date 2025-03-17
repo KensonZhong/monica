@@ -25,14 +25,16 @@ class VaultMostConsultedViewHelper
         foreach ($records as $record) {
             $contact = Contact::find($record->contact_id);
 
-            $contactsCollection->push([
-                'id' => $contact->id,
-                'name' => $contact->name,
-                'url' => route('contact.show', [
-                    'vault' => $contact->vault_id,
-                    'contact' => $contact->id,
-                ]),
-            ]);
+            if (!is_null($contact)) {
+                $contactsCollection->push([
+                    'id' => $contact->id,
+                    'name' => $contact->name,
+                    'url' => route('contact.show', [
+                        'vault' => $contact->vault_id,
+                        'contact' => $contact->id,
+                    ]),
+                ]);
+            }
         }
 
         return $contactsCollection;
