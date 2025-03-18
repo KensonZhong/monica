@@ -101,20 +101,6 @@ const showDeletePhotoModal = (file) => {
   deletePhotoModalShown.value = true;
 };
 
-const upload = () => {
-  saveInProgress.value = true;
-
-  axios
-    .post(props.data.url.upload_photo, form)
-    .then((response) => {
-      saveInProgress.value = false;
-      localPhotos.value.push(response.data.data);
-    })
-    .catch((error) => {
-      form.errors = error.response.data;
-    });
-};
-
 const handleFileUpload = (event) => {
   const file = event.target.files[0];
   if (!file) return;

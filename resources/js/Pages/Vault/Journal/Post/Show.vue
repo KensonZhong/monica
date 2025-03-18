@@ -1,5 +1,6 @@
 <script setup>
 import { Link } from '@inertiajs/vue3';
+import { ref } from 'vue';
 import Layout from '@/Shared/Layout.vue';
 import ContactCard from '@/Shared/ContactCard.vue';
 
@@ -7,6 +8,21 @@ defineProps({
   layoutData: Object,
   data: Object,
 });
+
+// 添加图片预览相关状态
+const showImagePreview = ref(false);
+const previewImageUrl = ref('');
+
+// 图片预览函数
+const openImagePreview = (imageUrl) => {
+  previewImageUrl.value = imageUrl;
+  showImagePreview.value = true;
+};
+
+const closeImagePreview = () => {
+  previewImageUrl.value = '';
+  showImagePreview.value = false;
+};
 </script>
 
 <template>
@@ -127,7 +143,24 @@ defineProps({
                   v-for="photo in data.photos"
                   :key="photo.id"
                   class="me-2 rounded-md border border-gray-200 p-2 shadow-xs hover:bg-slate-50 hover:shadow-lg dark:border-gray-700 dark:bg-slate-900 dark:hover:bg-slate-800">
-                  <img :src="photo.url.display" :alt="photo.name" />
+                  <img
+                    :src="photo.url.display"
+                    :alt="photo.name"
+                    class="me-4 cursor-pointer"
+                    @click="openImagePreview(photo.url.display)" />
+                </div>
+              </div>
+
+              <!-- 图片预览模态框 -->
+              <div
+                v-if="showImagePreview"
+                class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75"
+                @click="closeImagePreview">
+                <div class="relative max-h-[90vh] max-w-[90vw]">
+                  <img :src="previewImageUrl" class="max-h-[90vh] max-w-[90vw] object-contain" @click.stop />
+                  <button class="absolute -top-10 right-0 text-white text-2xl" @click="closeImagePreview">
+                    &times;
+                  </button>
                 </div>
               </div>
 
