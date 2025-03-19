@@ -39,3 +39,4 @@ yarn-error.log
 monica.db
 sail
 package-lock.json
+yarn.lock
