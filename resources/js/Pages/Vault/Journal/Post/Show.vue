@@ -293,6 +293,11 @@ const closeImagePreview = () => {
   }
 }
 
+.prose {
+  max-width: none;  // 移除默认的最大宽度限制
+  width: 100%;      // 设置宽度为父容器的100%
+}
+
 [dir='ltr'] .post {
   &:before {
     background: #fafafa;
