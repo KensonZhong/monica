@@ -15,6 +15,8 @@ use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use League\CommonMark\Extension\HeadingPermalink\HeadingPermalinkExtension;
+use League\CommonMark\Extension\TableOfContents\TableOfContentsExtension;
 
 class PostShowViewHelper
 {
@@ -26,7 +28,7 @@ class PostShowViewHelper
 
         $contacts = $post->contacts()
             ->get()
-            ->map(fn (Contact $contact) => ContactCardHelper::data($contact));
+            ->map(fn(Contact $contact) => ContactCardHelper::data($contact));
 
         $photos = self::getPhotos($post);
 
@@ -122,13 +124,17 @@ class PostShowViewHelper
             ->orderBy('position')
             ->whereNotNull('content')
             ->get()
-            ->map(fn (PostSection $section) => [
+            ->map(fn(PostSection $section) => [
                 'id' => $section->id,
                 'label' => $section->label,
-                'content' => (string) Str::of($section->content)->markdown([
+                'content' => (string)Str::of($section->content)->markdown([
                     'html_input' => 'strip',
                     'allow_unsafe_links' => false,
-                ]),
+                    'heading_permalink' => [
+                        'apply_id_to_heading' => true,
+                        'symbol' => '',
+                    ]
+                ], [new HeadingPermalinkExtension(), new TableOfContentsExtension()]),
             ]);
     }
 
@@ -137,7 +143,7 @@ class PostShowViewHelper
         return $post->tags()
             ->get()
             ->sortByCollator('name')
-            ->map(fn (Tag $tag) => [
+            ->map(fn(Tag $tag) => [
                 'id' => $tag->id,
                 'name' => $tag->name,
             ]);
@@ -148,7 +154,7 @@ class PostShowViewHelper
         return $post->files()
             ->where('type', File::TYPE_PHOTO)
             ->get()
-            ->map(fn (File $file) => [
+            ->map(fn(File $file) => [
                 'id' => $file->id,
                 'name' => $file->name,
                 'url' => [
@@ -162,7 +168,7 @@ class PostShowViewHelper
     {
         $contact = $user->getContactInVault($post->journal->vault);
 
-        if (! $contact) {
+        if (!$contact) {
             return null;
         }
 
@@ -170,7 +176,7 @@ class PostShowViewHelper
             ->whereDate('rated_at', $post->written_at)
             ->with('moodTrackingParameter')
             ->get()
-            ->map(fn (MoodTrackingEvent $mood) => [
+            ->map(fn(MoodTrackingEvent $mood) => [
                 'id' => $mood->id,
                 'note' => $mood->note,
                 'number_of_hours_slept' => $mood->number_of_hours_slept,
@@ -190,7 +196,7 @@ class PostShowViewHelper
             $postMetrics = $post->postMetrics()
                 ->where('journal_metric_id', $journalMetric->id)
                 ->get()
-                ->map(fn (PostMetric $postMetric) => [
+                ->map(fn(PostMetric $postMetric) => [
                     'id' => $postMetric->id,
                     'value' => $postMetric->value,
                     'label' => $postMetric->label,
