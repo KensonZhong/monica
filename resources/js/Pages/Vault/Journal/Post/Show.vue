@@ -1,6 +1,6 @@
 <script setup>
 import { Link } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import Layout from '@/Shared/Layout.vue';
 import ContactCard from '@/Shared/ContactCard.vue';
 
@@ -23,6 +23,28 @@ const closeImagePreview = () => {
   previewImageUrl.value = '';
   showImagePreview.value = false;
 };
+
+// 回到顶部功能
+const showBackToTop = ref(false);
+
+const scrollToTop = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth',
+  });
+};
+
+const handleScroll = () => {
+  showBackToTop.value = window.scrollY > 300;
+};
+
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll);
+});
 </script>
 
 <template>
@@ -264,6 +286,18 @@ const closeImagePreview = () => {
         </div>
       </div>
     </main>
+    <!-- 回到顶部按钮 -->
+    <div v-show="showBackToTop" class="back-to-top" @click="scrollToTop" title="回到顶部">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="1.5"
+        stroke="currentColor"
+        class="w-6 h-6">
+        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+      </svg>
+    </div>
   </layout>
 </template>
 
@@ -294,8 +328,8 @@ const closeImagePreview = () => {
 }
 
 .prose {
-  max-width: none;  // 移除默认的最大宽度限制
-  width: 100%;      // 设置宽度为父容器的100%
+  max-width: none; // 移除默认的最大宽度限制
+  width: 100%; // 设置宽度为父容器的100%
 }
 
 [dir='ltr'] .post {
@@ -367,6 +401,50 @@ const closeImagePreview = () => {
   &:hover:last-child {
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
+  }
+}
+
+.back-to-top {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #3b82f6;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  z-index: 100;
+
+  &:hover {
+    background-color: #2563eb;
+    transform: translateY(-3px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.dark .back-to-top {
+  background-color: #4b5563;
+
+  &:hover {
+    background-color: #374151;
+  }
+}
+
+@media (max-width: 640px) {
+  .back-to-top {
+    bottom: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
   }
 }
 </style>

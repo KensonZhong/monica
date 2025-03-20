@@ -21,3 +21,15 @@
 .uploadcare--button_primary {
   background: #3891ff;
 }
+
+h1, h2, h3, h4, h5, h6 {
+  scroll-margin-top: 6rem !important;
+}
+
+.table-of-contents {
+  border-bottom: 2px solid #3891ff;
+}
+
+.table-of-contents a {
+  text-decoration: none !important;
+}
