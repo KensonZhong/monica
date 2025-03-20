@@ -68,15 +68,15 @@ class JournalShowViewHelper
     {
         $posts = $journal->posts()
             ->orderBy('written_at', 'desc')
-            ->whereYear('written_at', (string) $year)
+            ->whereYear('written_at', (string)$year)
             ->with('files')
             ->get()
-            ->groupBy(fn (Post $post) => $post->written_at->month);
+            ->groupBy(fn(Post $post) => $post->written_at->month);
 
         $monthsCollection = collect();
         for ($month = 12; $month > 0; $month--) {
             $postsCollection = $posts->get($month, collect())
-                ->map(fn (Post $post) => [
+                ->map(fn(Post $post) => [
                     'id' => $post->id,
                     'title' => $post->title,
                     'excerpt' => $post->excerpt,
@@ -85,7 +85,8 @@ class JournalShowViewHelper
                     'photo' => optional(optional($post)->files)->first() ? [
                         'id' => $post->files->first()->id,
                         'url' => [
-                            'show' => 'https://ucarecdn.com/'.$post->files->first()->uuid.'/-/scale_crop/75x75/smart/-/format/auto/-/quality/smart_retina/',
+//                            'show' => 'https://ucarecdn.com/'.$post->files->first()->uuid.'/-/scale_crop/75x75/smart/-/format/auto/-/quality/smart_retina/',
+                            'show' => $post->files->first()->cdn_url,
                         ],
                     ] : null,
                     'url' => [
@@ -150,12 +151,12 @@ class JournalShowViewHelper
     {
         /** @var Collection<int,Post> */
         $posts = Post::where('journal_id', $journal->id)
-            ->select(DB::raw(SQLHelper::year('written_at').' as year'))
+            ->select(DB::raw(SQLHelper::year('written_at') . ' as year'))
             ->distinct()
             ->orderBy('year', 'desc')
             ->get();
 
-        return $posts->map(fn (Post $post): array => [ // @phpstan-ignore-line
+        return $posts->map(fn(Post $post): array => [ // @phpstan-ignore-line
             'year' => $post->year,
             'posts' => Post::where('journal_id', $journal->id)
                 ->whereYear('written_at', $post->year)
@@ -200,11 +201,12 @@ class JournalShowViewHelper
         return $journal
             ->slicesOfLife()
             ->get()
-            ->map(fn (SliceOfLife $slice) => [
+            ->map(fn(SliceOfLife $slice) => [
                 'id' => $slice->id,
                 'name' => $slice->name,
                 'date_range' => SliceOfLifeHelper::getDateRange($slice),
-                'cover_image' => $slice->file ? 'https://ucarecdn.com/'.$slice->file->uuid.'/-/scale_crop/200x100/smart/-/format/auto/-/quality/smart_retina/' : null,
+//                'cover_image' => $slice->file ? 'https://ucarecdn.com/'.$slice->file->uuid.'/-/scale_crop/200x100/smart/-/format/auto/-/quality/smart_retina/' : null,
+                'cover_image' => $slice->file ? $slice->file->cdn_url : null,
                 'url' => [
                     'show' => route('slices.show', [
                         'vault' => $journal->vault_id,
