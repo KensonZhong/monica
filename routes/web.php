@@ -413,6 +413,7 @@ Route::middleware([
                     Route::get('', [JournalController::class, 'show'])->name('journal.show');
                     Route::get('photos', [JournalPhotoController::class, 'index'])->name('journal.photo.index');
                     Route::get('years/{year}', [JournalController::class, 'year'])->name('journal.year');
+                    Route::get('tags/{tag}', [JournalController::class, 'tag'])->name('journal.tag');
                     Route::get('edit', [JournalController::class, 'edit'])->name('journal.edit');
                     Route::put('', [JournalController::class, 'update'])->name('journal.update');
                     Route::delete('', [JournalController::class, 'destroy'])->name('journal.destroy');

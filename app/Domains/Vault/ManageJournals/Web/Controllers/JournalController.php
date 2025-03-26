@@ -9,6 +9,7 @@ use App\Domains\Vault\ManageJournals\Web\ViewHelpers\JournalCreateViewHelper;
 use App\Domains\Vault\ManageJournals\Web\ViewHelpers\JournalEditViewHelper;
 use App\Domains\Vault\ManageJournals\Web\ViewHelpers\JournalIndexViewHelper;
 use App\Domains\Vault\ManageJournals\Web\ViewHelpers\JournalShowViewHelper;
+use App\Domains\Vault\ManageJournals\Web\ViewHelpers\TagShowViewHelper;
 use App\Domains\Vault\ManageVault\Web\ViewHelpers\VaultIndexViewHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Journal;
@@ -79,6 +80,18 @@ class JournalController extends Controller
         return Inertia::render('Vault/Journal/Show', [
             'layoutData' => VaultIndexViewHelper::layoutData($vault),
             'data' => JournalShowViewHelper::data($journal, $year, Auth::user()),
+        ]);
+    }
+
+    public function tag(Request $request, string $vaultId, int $journalId, int $tagId)
+    {
+        $vault = Vault::findOrFail($vaultId);
+        $tag = $vault->tags()->findOrFail($tagId);
+        $journal = Journal::findOrFail($journalId);
+
+        return Inertia::render('Vault/Journal/Show', [
+            'layoutData' => VaultIndexViewHelper::layoutData($vault),
+            'data' => TagShowViewHelper::data($journal, $tag),
         ]);
     }
 

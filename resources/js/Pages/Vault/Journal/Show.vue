@@ -116,7 +116,7 @@ const destroy = () => {
             </p>
             <ul v-if="data.tags.length > 0">
               <li v-for="tag in data.tags" :key="tag.id" class="mb-2 flex items-center justify-between">
-                <span>{{ tag.name }}</span>
+                <Link :href="tag.url.show" class="text-blue-500 hover:underline">{{ tag.name }}</Link>
                 <span class="text-sm text-gray-400">{{ tag.count }}</span>
               </li>
             </ul>

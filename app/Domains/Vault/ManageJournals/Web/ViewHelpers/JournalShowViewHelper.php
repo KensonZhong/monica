@@ -190,6 +190,13 @@ class JournalShowViewHelper
                 'id' => $tag->id,
                 'name' => $tag->name,
                 'count' => $tag->posts()->count(),
+                'url' => [
+                    'show' => route('journal.tag', [
+                        'vault' => $journal->vault_id,
+                        'journal' => $journal->id,
+                        'tag' => $tag->id,
+                    ])
+                ]
             ]);
         }
 
